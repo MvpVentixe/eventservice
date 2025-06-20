@@ -26,10 +26,10 @@ namespace EventService.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EventEntity>> GetEventById(Guid id)
+        [HttpGet("{eventId}")]
+        public async Task<ActionResult<EventEntity>> GetEventById(Guid eventId)
         {
-            var eventEntity = await _eventService.GetEventByIdAsync(id);
+            var eventEntity = await _eventService.GetEventByIdAsync(eventId);
             if (eventEntity == null)
             {
                 return NotFound();
@@ -37,12 +37,24 @@ namespace EventService.Controllers
             return Ok(eventEntity);
         }
 
-        [HttpGet("count")]
-        public async Task<ActionResult<int>> GetEventCount()
+
+
+        [HttpGet("booking/{eventId}")]
+        public async Task<ActionResult<BookingDto>> GetEventInfoToBooking(Guid eventId)
         {
-            var count = await _eventService.GetEventCountAsync();
-            Console.WriteLine($"📦 Total events in DB: {count}");
-            return Ok(count);
+            try
+            {
+                var bookingInfo = await _eventService.GetEventInfoToBookingAsync(eventId);
+                return Ok(bookingInfo);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound("Event not found");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Server error: {ex.Message}");
+            }
         }
 
     }

@@ -1,6 +1,7 @@
 ﻿using EventService.Data;
 using EventService.Dtos;
 using EventService.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace EventService.Services
@@ -35,9 +36,14 @@ namespace EventService.Services
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<int> GetEventCountAsync()
+        public async Task<BookingDto> GetEventInfoToBookingAsync(Guid eventId)
         {
-            return await _dbSet.CountAsync();
+            return await _dbSet.Where(e => e.Id == eventId).Select(e => new BookingDto
+            {
+                Title = e.Title,
+                Location = e.Location,
+                EventDateTime = e.EventDateTime
+            }).FirstOrDefaultAsync() ?? throw new KeyNotFoundException("Event not found");
         }
 
     }
